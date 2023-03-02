@@ -2,76 +2,92 @@ name: Release
 
 on:
   push:
-    branches: [main]
-    tags: ['*']
+    branches:
+      - main
+    tags:
+      - '*'
 
 env:
-  BACKEND_NAME: safe-backend
-  FRONTEND_NAME: safe-frontend
-  BACKEND_URL: 'https://${{ secrets.HEROKU_APP_NAME }}.herokuapp.com'
+  APP_NAME: 'safe'
 
 jobs:
-  Backend:
+  Web:
     runs-on: ubuntu-latest
+
+    env:
+      REPOSITORY_NAME: ${{ github.event.repository.name }}
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: subosito/flutter-action@v2
         with:
-          node-version: 16
-      - name: Build backend
+          channel: 'stable'
+      - name: Build frontend web version
         run: |
-          chmod +x ./scripts/build_backend.sh
-          ./scripts/build_backend.sh
-      - name: Deploy backend
-        uses: akhileshns/heroku-deploy@v3.12.12
+          chmod +x ./scripts/build_web.sh
+          ./scripts/build_web.sh $REPOSITORY_NAME
+      - name: Deploy frontend web version
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: 'backend'
-          stack: 'heroku-22'
-          region: 'eu'
-          procfile: 'web: npm run start:prod'
-          healthcheck: '${{ env.BACKEND_URL }}'
-          rollbackonhealthcheckfailed: true
+          folder: dist
 
-  # Frontend:
-  #   runs-on: ubuntu-latest
+  Android:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set project env vars
-  #       uses: dkershner6/vercel-set-env-action@v1
-  #       with:
-  #         token: ${{ secrets.VERCEL_TOKEN }}
-  #         projectName: ${{ env.FRONTEND_NAME }}
-  #         envVariableKeys: NEXT_PUBLIC_BACKEND_URL
-  #       env:
-  #         NEXT_PUBLIC_BACKEND_URL: ${{ env.BACKEND_URL }}
-  #         TARGET_NEXT_PUBLIC_BACKEND_URL: production,preview,development
-  #         TYPE_NEXT_PUBLIC_BACKEND_URL: plain
-  #     - name: Deploy frontend
-  #       uses: amondnet/vercel-action@v20
-  #       with:
-  #         vercel-token: ${{ secrets.VERCEL_TOKEN }}
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         vercel-args: '--prod --confirm'
-  #         vercel-org-id: ${{ secrets.VERCEL_ORGANIZATION_ID }}
-  #         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-  #         working-directory: ./frontend
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      RELEASE_SIGN_KEY_ALIAS: ${{ secrets.RELEASE_SIGN_KEY_ALIAS }}
+      RELEASE_SIGN_KEY_PASSWORD: ${{ secrets.RELEASE_SIGN_KEY_PASSWORD }}
 
-  # Release:
-  #   runs-on: ubuntu-latest
-  #   needs: [Backend]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 18
+      - name: Checkout keystore repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.KEYSTORE_GIT_REPOSITORY }}
+          token: ${{ secrets.KEYSTORE_ACCESS_TOKEN }}
+          path: frontend/android/app/keystore
+      - name: Get git tag
+        uses: olegtarasov/get-tag@v2.1
+      - name: Check tag
+        if: ${{ env.GIT_TAG_NAME == '' }}
+        run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
+      - name: Build android version
+        run: |
+          chmod +x ./scripts/build_android.sh
+          ./scripts/build_android.sh $APP_NAME-$GIT_TAG_NAME
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Android
+          path: dist/*
+          retention-days: 1
 
-  #   steps:
-  #     - name: Get git tag
-  #       uses: olegtarasov/get-tag@v2.1
-  #     - name: Create release
-  #       if: ${{ env.GIT_TAG_NAME != '' }}
-  #       uses: 'marvinpinto/action-automatic-releases@latest'
-  #       with:
-  #         repo_token: '${{ secrets.GITHUB_TOKEN }}'
-  #         automatic_release_tag: '${{ env.GIT_TAG_NAME }}'
-  #         prerelease: false
+  Release:
+    runs-on: ubuntu-latest
+    needs:
+      - Web
+      - Android
+
+    steps:
+      - name: Get git tag
+        uses: olegtarasov/get-tag@v2.1
+      - name: Check tag
+        if: ${{ env.GIT_TAG_NAME == '' }}
+        run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+      - name: Create release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{ env.GIT_TAG_NAME }}
+          prerelease: false
+          files: '**/*'
