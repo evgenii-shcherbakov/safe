@@ -1,46 +1,65 @@
 _safe_
 
-# NestJS + Flutter app
+# Flutter app
 
-App for store passwords and credentials
+Cross-platform app for store passwords
 
-### Backend tech stack
-
-- TypeScript
-- NestJS
-- TypeORM
-- PostgreSQL
-
-### Frontend tech stack
+### Tech stack
 
 - Dart
 - Flutter
+- Provider
+- Injectable
+- Firebase
 
 ### Repository secrets
 
-- `HEROKU_APP_NAME` name of backend Heroku app
-- `HEROKU_API_KEY` used Heroku api key for deploy backend
-- `HEROKU_EMAIL` used Heroku email for deploy backend
-- `KEYSTORE_GIT_REPOSITORY` name of git repository with keystore for mobile app
-- `KEYSTORE_ACCESS_TOKEN` token for get access to keystore repository
-- `ANDROID_KEYSTORE_PASSWORD` password of used android keystore
-- `ANDROID_RELEASE_SIGN_KEY_ALIAS` used alias for sign android app using keystore
-- `ANDROID_RELEASE_SIGN_KEY_PASSWORD` used password for sign android app using keystore
+> Android signing
+> 
+> - `KEYSTORE_GIT_REPOSITORY` name of git repository with keystore
+> - `KEYSTORE_ACCESS_TOKEN` token for get access to keystore repository
+> - `KEYSTORE_PASSWORD` password of used keystore
+> - `RELEASE_SIGN_KEY_ALIAS` used alias for sign app using keystore
+> - `RELEASE_SIGN_KEY_PASSWORD` used password for sign app using keystore
+
+> Firebase
+> - `FIREBASE_API_KEY`
+> - `FIREBASE_APP_ID`
+> - `FIREBASE_MESSAGING_SENDER_ID`
+> - `FIREBASE_AUTH_DOMAIN`
+> - `FIREBASE_PROJECT_ID`
+> - `FIREBASE_STORAGE_BUCKET`
+> - `FIREBASE_IOS_CLIENT_ID`
+> - `FIREBASE_IOS_BUNDLE_ID`
 
 ### Environment variables
 
-- `PORT` used port by backend
-- `DATABASE_URL`
-- `SECRET_KEY` secret key, used for auth
-- `PGSSLMODE` set to 'no-verify' for Heroku
+> Android (build)
+> - `FIREBASE_API_KEY`
+> - `FIREBASE_APP_ID`
+> - `FIREBASE_MESSAGING_SENDER_ID`
+> - `FIREBASE_PROJECT_ID`
+> - `FIREBASE_STORAGE_BUCKET`
+> - `FIREBASE_IOS_CLIENT_ID`
+> - `FIREBASE_IOS_BUNDLE_ID`
 
-### Setup database
+> Android (signing)
+> - `KEYSTORE_GIT_REPOSITORY` (optional)
+> - `KEYSTORE_ACCESS_TOKEN` (optional)
+> - `KEYSTORE_PASSWORD` (optional)
+> - `RELEASE_SIGN_KEY_ALIAS` (optional)
+> - `RELEASE_SIGN_KEY_PASSWORD` (optional)
 
-```shell
-psql -U postgres
-create database safe;
-\q
-```
+> Web (build)
+> - `BASE_URL`
+> - `FIREBASE_API_KEY`
+> - `FIREBASE_APP_ID`
+> - `FIREBASE_MESSAGING_SENDER_ID`
+> - `FIREBASE_AUTH_DOMAIN`
+> - `FIREBASE_PROJECT_ID`
+> - `FIREBASE_STORAGE_BUCKET`
+> - `FIREBASE_IOS_CLIENT_ID`
+> - `FIREBASE_IOS_BUNDLE_ID`
 
 ### Load project
 
@@ -49,23 +68,60 @@ git clone git@github.com:IIPEKOLICT/safe.git
 cd safe
 ```
 
-### Start backend locally (needed 16+ NodeJS)
+### Update DI dependencies with active watcher (needed Flutter 3+)
 
 ```shell
-cd backend
-npm i
-npm run start
+cd frontend
+flutter pub get
+flutter packages pub run build_runner watch --delete-conflicting-outputs
 ```
 
-### Start backend on heroku command (needed 16+ NodeJS)
+### Update DI dependencies (needed Flutter 3+)
 
 ```shell
-npm run build:prod
+cd frontend
+flutter pub get
+flutter packages pub run build_runner build --delete-conflicting-outputs
 ```
 
-### Build APK and AAB files
+### Build web-version (needed Flutter 3+)
 
 ```shell
-chmod +x ./scripts/build_android.sh
-./scripts/build_android.sh $FRONTEND_NAME-$GIT_TAG_NAME
+cd frontend
+flutter pub get
+flutter packages pub run build_runner build --delete-conflicting-outputs
+flutter build web --release --base-href "/$BASE_URL/" \
+--dart-define=FIREBASE_API_KEY="$FIREBASE_API_KEY" \
+--dart-define=FIREBASE_APP_ID="$FIREBASE_APP_ID" \
+--dart-define=FIREBASE_MESSAGING_SENDER_ID="$FIREBASE_MESSAGING_SENDER_ID" \
+--dart-define=FIREBASE_AUTH_DOMAIN="$FIREBASE_AUTH_DOMAIN" \
+--dart-define=FIREBASE_PROJECT_ID="$FIREBASE_PROJECT_ID" \
+--dart-define=FIREBASE_STORAGE_BUCKET="$FIREBASE_STORAGE_BUCKET"
 ```
+
+You can find generated bundle in `build/web` location
+
+### Build android-version (needed Flutter 3+)
+
+```shell
+cd frontend
+flutter pub get
+flutter packages pub run build_runner build --delete-conflicting-outputs
+flutter build apk \
+--dart-define=FIREBASE_API_KEY="$FIREBASE_API_KEY" \
+--dart-define=FIREBASE_APP_ID="$FIREBASE_APP_ID" \
+--dart-define=FIREBASE_MESSAGING_SENDER_ID="$FIREBASE_MESSAGING_SENDER_ID" \
+--dart-define=FIREBASE_PROJECT_ID="$FIREBASE_PROJECT_ID" \
+--dart-define=FIREBASE_STORAGE_BUCKET="$FIREBASE_STORAGE_BUCKET"
+flutter build appbundle \
+--dart-define=FIREBASE_API_KEY="$FIREBASE_API_KEY" \
+--dart-define=FIREBASE_APP_ID="$FIREBASE_APP_ID" \
+--dart-define=FIREBASE_MESSAGING_SENDER_ID="$FIREBASE_MESSAGING_SENDER_ID" \
+--dart-define=FIREBASE_PROJECT_ID="$FIREBASE_PROJECT_ID" \
+--dart-define=FIREBASE_STORAGE_BUCKET="$FIREBASE_STORAGE_BUCKET"
+```
+
+You can find:
+
+- generated APK file in `build/app/outputs/flutter-apk/app-release.apk` location
+- generated AAB file in `build/app/outputs/bundle/release/app-release.aab` location
