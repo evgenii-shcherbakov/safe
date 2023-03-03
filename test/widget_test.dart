@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:safe/widgets/app.dart';
+import 'package:safe/di/app.module.dart';
+import 'package:safe/widgets/components/loader.component.dart';
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(App());
+void main() async {
+  await configureDependencies();
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Loader smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(const LoaderComponent());
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }
