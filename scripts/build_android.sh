@@ -14,8 +14,8 @@ flutter test
 
 echo Build APK and AAB files...
 
-flutter build apk --dart-define=BACKEND_URL="$BACKEND_URL"
-flutter build appbundle --dart-define=BACKEND_URL="$BACKEND_URL"
+flutter build apk "$ANDROID_BUILD_ARGUMENTS"
+flutter build appbundle "$ANDROID_BUILD_ARGUMENTS"
 
 echo Move output client files to build directory...
 

@@ -14,7 +14,7 @@ flutter test
 
 echo Build web version...
 
-flutter build web --release --base-href "/$1/" --dart-define=BACKEND_URL="$BACKEND_URL"
+flutter build web --release --base-href "/$1/" "$WEB_BUILD_ARGUMENTS"
 
 echo Move output web files to build directory...
 

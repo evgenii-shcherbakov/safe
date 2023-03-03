@@ -9,23 +9,34 @@ on:
 
 env:
   APP_NAME: 'safe'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
   Web:
     runs-on: ubuntu-latest
-
-    env:
-      REPOSITORY_NAME: ${{ github.event.repository.name }}
 
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - name: Setup AWS
+        uses: 'aws-actions/configure-aws-credentials@v1'
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Get build arguments from AWS
+        uses: 'marvinpinto/action-inject-ssm-secrets@latest'
+        with:
+          ssm_parameter: '/safe/build-args/web'
+          env_variable_name: 'WEB_BUILD_ARGUMENTS'
       - name: Build frontend web version
         run: |
           chmod +x ./scripts/build_web.sh
-          ./scripts/build_web.sh $REPOSITORY_NAME
+          ./scripts/build_web.sh ${{ github.event.repository.name }}
       - name: Deploy frontend web version
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -59,6 +70,17 @@ jobs:
       - name: Check tag
         if: ${{ env.GIT_TAG_NAME == '' }}
         run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
+      - name: Setup AWS
+        uses: 'aws-actions/configure-aws-credentials@v1'
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Get build arguments from AWS
+        uses: 'marvinpinto/action-inject-ssm-secrets@latest'
+        with:
+          ssm_parameter: '/safe/build-args/android'
+          env_variable_name: 'ANDROID_BUILD_ARGUMENTS'
       - name: Build android version
         run: |
           chmod +x ./scripts/build_android.sh
