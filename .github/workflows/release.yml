@@ -32,12 +32,12 @@ jobs:
         uses: 'marvinpinto/action-inject-ssm-secrets@latest'
         with:
           ssm_parameter: '/safe/build-args/web'
-          env_variable_name: 'WEB_BUILD_ARGUMENTS'
-      - name: Build frontend web version
+          env_variable_name: 'BUILD_ARGUMENTS'
+      - name: Build web version
         run: |
           chmod +x ./scripts/build_web.sh
           ./scripts/build_web.sh ${{ github.event.repository.name }}
-      - name: Deploy frontend web version
+      - name: Deploy web version
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
@@ -80,7 +80,7 @@ jobs:
         uses: 'marvinpinto/action-inject-ssm-secrets@latest'
         with:
           ssm_parameter: '/safe/build-args/android'
-          env_variable_name: 'ANDROID_BUILD_ARGUMENTS'
+          env_variable_name: 'BUILD_ARGUMENTS'
       - name: Build android version
         run: |
           chmod +x ./scripts/build_android.sh

@@ -14,7 +14,8 @@ flutter test
 
 echo Build web version...
 
-flutter build web --release --base-href "/$1/" "$WEB_BUILD_ARGUMENTS"
+# shellcheck disable=SC2086
+flutter build web --release --base-href "/$1/" $BUILD_ARGUMENTS
 
 echo Move output web files to build directory...
 
