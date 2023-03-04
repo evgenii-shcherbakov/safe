@@ -17,7 +17,9 @@ class HomePage extends StatelessWidget {
           child: const Icon(Icons.arrow_back_sharp),
         ),
       ),
-      body: const Text('Home page'),
+      body: const Center(
+        child: Text('Home page'),
+      ),
     );
   }
 
