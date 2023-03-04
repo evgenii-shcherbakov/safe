@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:safe/models/base/entity.dart';
-import 'package:safe/services/crypto_service.dart';
+import 'package:safe/services/crypto.service.dart';
+
+import '../di/app.module.dart';
 
 class Card extends Entity {
   String name;
@@ -34,10 +36,10 @@ class Card extends Entity {
       'name': name,
       'description': description,
       'type': type,
-      'number': CryptoService.encode(number),
-      'vcc': CryptoService.encode(vcc),
-      'pin': CryptoService.encode(pin),
-      'securityCode': CryptoService.encode(securityCode),
+      'number': _cryptoService.encode(number),
+      'vcc': _cryptoService.encode(vcc),
+      'pin': _cryptoService.encode(pin),
+      'securityCode': _cryptoService.encode(securityCode),
       'expiredAt': expiredAt,
       'price': price,
       'priceCurrency': priceCurrency,
@@ -56,19 +58,20 @@ class Card extends Entity {
       name: data?['name'] ?? '',
       description: data?['description'] ?? '',
       type: data?['type'] ?? '',
-      number: CryptoService.decode(data?['number'] ?? ''),
-      vcc: CryptoService.decode(data?['vcc'] ?? ''),
-      pin: CryptoService.decode(data?['pin'] ?? ''),
-      securityCode: CryptoService.decode(data?['securityCode'] ?? ''),
+      number: _cryptoService.decode(data?['number'] ?? ''),
+      vcc: _cryptoService.decode(data?['vcc'] ?? ''),
+      pin: _cryptoService.decode(data?['pin'] ?? ''),
+      securityCode: _cryptoService.decode(data?['securityCode'] ?? ''),
       expiredAt: data?['expiredAt'] ?? '',
       price: data?['price'] ?? 0,
       priceCurrency: data?['priceCurrency'] ?? '',
     );
   }
 
-  static const String collectionName = 'cards';
-
   static Map<String, dynamic> Function(Card, SetOptions?) get toFirestore {
     return (Card card, SetOptions? _) => card.toJson();
   }
+
+  static const String collectionName = 'cards';
+  static final CryptoService _cryptoService = injector.get();
 }

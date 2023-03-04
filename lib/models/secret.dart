@@ -1,4 +1,5 @@
-import '../services/crypto_service.dart';
+import '../di/app.module.dart';
+import '../services/crypto.service.dart';
 
 class Secret {
   final int id;
@@ -27,10 +28,10 @@ class Secret {
       name: json['name'],
       description: json['description'],
       url: json['url'],
-      email: CryptoService.decode(json['email']),
-      login: CryptoService.decode(json['login']),
-      phone: CryptoService.decode(json['phone']),
-      password: CryptoService.decode(json['password']),
+      email: _cryptoService.decode(json['email']),
+      login: _cryptoService.decode(json['login']),
+      phone: _cryptoService.decode(json['phone']),
+      password: _cryptoService.decode(json['password']),
     );
   }
 
@@ -40,10 +41,12 @@ class Secret {
       'name': name,
       'description': description,
       'url': url,
-      'email': CryptoService.encode(email),
-      'login': CryptoService.encode(login),
-      'phone': CryptoService.encode(phone),
-      'password': CryptoService.encode(password),
+      'email': _cryptoService.encode(email),
+      'login': _cryptoService.encode(login),
+      'phone': _cryptoService.encode(phone),
+      'password': _cryptoService.encode(password),
     };
   }
+
+  static final CryptoService _cryptoService = injector.get();
 }
