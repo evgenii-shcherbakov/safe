@@ -20,7 +20,7 @@ class AuthViewModel extends BaseViewModel with LoadableViewModel {
 
   @override
   void onInit() {
-    _authState.user$.subscribe(_userSubscriber, lazy: false);
+    _authState.user$.subscribe(_userSubscriber);
     _auth();
   }
 

@@ -5,8 +5,8 @@ import 'package:safe/di/app.module.dart';
 import 'package:safe/widgets/app.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
   await Firebase.initializeApp(options: firebaseOptions);
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
 }

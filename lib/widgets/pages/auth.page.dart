@@ -11,7 +11,7 @@ import '../components/loader.component.dart';
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
-  Future<void> Function() _showDialog(BuildContext context, bool isRegister) {
+  Future<void> Function() _showDialog(BuildContext context, {bool isRegister = false}) {
     return () async {
       await showDialog(
         context: context,
@@ -39,13 +39,13 @@ class AuthPage extends StatelessWidget {
                 children: [
                   ListTile(
                     title: ElevatedButton(
-                      onPressed: _showDialog(context, false),
+                      onPressed: _showDialog(context),
                       child: const Text('Войти'),
                     ),
                   ),
                   ListTile(
                     title: ElevatedButton(
-                      onPressed: _showDialog(context, true),
+                      onPressed: _showDialog(context, isRegister: true),
                       child: const Text('Зарегистрироваться'),
                     ),
                   ),
