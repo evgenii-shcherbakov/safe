@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:safe/enums/route.enum.dart';
 
 import '../../constants/common.dart';
 
@@ -11,7 +13,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(appName),
         leading: TextButton(
-          onPressed: null,
+          onPressed: () => context.go(RouteEnum.auth.value),
           child: const Icon(Icons.arrow_back_sharp),
         ),
       ),

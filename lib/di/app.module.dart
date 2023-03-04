@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +22,9 @@ Future<void> configureDependencies() async => injector.init();
 @module
 abstract class AppModule {
   static const Duration _requestTimeout = Duration(seconds: 30);
+
+  @lazySingleton
+  Codec<String, String> get codec => utf8.fuse(base64);
 
   @lazySingleton
   FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;

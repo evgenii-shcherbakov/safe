@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:safe/services/storage.service.dart';
+import 'package:safe/shared/credentials.dart';
 import 'package:safe/view_models/base/base.view_model.dart';
 import 'package:safe/view_models/base/loadable.view_model.dart';
 
@@ -32,7 +33,7 @@ class AuthDialogViewModel extends BaseViewModel with LoadableViewModel {
     notifyListeners();
   }
 
-  void resetForm() {
+  void _resetForm() {
     _email = '';
     _password = '';
     notifyListeners();
@@ -55,10 +56,11 @@ class AuthDialogViewModel extends BaseViewModel with LoadableViewModel {
         final UserCredential credentials =
             isRegister ? await _authService.register(_email, _password) : await _authService.login(_email, _password);
 
-        if (credentials.credential != null) {
-          await _storageService.saveCredentials(credentials.credential!);
+        if (credentials.user != null) {
+          await _storageService.saveCredentials(Credentials.create(email: _email, password: _password));
         }
 
+        _resetForm();
         _authState.setUser(credentials.user);
       } catch (exception) {
         onException(exception);

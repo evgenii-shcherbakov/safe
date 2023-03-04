@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
+import 'package:safe/shared/credentials.dart';
 
 @LazySingleton()
 class AuthService {
@@ -7,9 +8,8 @@ class AuthService {
 
   AuthService(this._instance);
 
-  Future<UserCredential> authViaSavedCredentials(AuthCredential credentials) async {
-    return _instance.signInWithCredential(credentials);
-  }
+  // User? getUser() => _instance.currentUser;
+  // Stream<User?> getUserStream() => _instance.authStateChanges();
 
   Future<UserCredential> register(String email, String password) async {
     return _instance.createUserWithEmailAndPassword(email: email, password: password);
@@ -17,6 +17,10 @@ class AuthService {
 
   Future<UserCredential> login(String email, String password) async {
     return _instance.signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  Future<UserCredential> authViaSavedCredentials(Credentials credentials) async {
+    return login(credentials.getEmail(), credentials.getPassword());
   }
 
   Future<void> logout() async {

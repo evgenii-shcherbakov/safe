@@ -18,6 +18,10 @@ abstract class FirestoreRepository<E extends Entity> {
         );
   }
 
+  Stream<QuerySnapshot<E>> getStream() {
+    return collection.snapshots();
+  }
+
   Future<List<E>> getAll() async {
     return (await collection.get()).docs.map((QueryDocumentSnapshot<E> snapshot) => snapshot.data()).toList();
   }
