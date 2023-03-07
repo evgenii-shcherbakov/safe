@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:safe/shared/utils.dart';
 import 'package:safe/widgets/dialogs/auth.dialog.dart';
 
 import '../../constants/common.dart';
@@ -13,9 +14,9 @@ class AuthPage extends StatelessWidget {
 
   Future<void> Function() _showDialog(BuildContext context, {bool isRegister = false}) {
     return () async {
-      await showDialog(
+      await showAnimatedDialog(
         context: context,
-        builder: (BuildContext ctx) => AuthDialog.onCreate(isRegister),
+        dialogBuilder: (_) => AuthDialog.onCreate(isRegister),
       );
     };
   }
@@ -35,7 +36,7 @@ class AuthPage extends StatelessWidget {
         body: viewModel.isLoading
             ? const LoaderComponent()
             : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: isMobile() ? MainAxisAlignment.end : MainAxisAlignment.center,
                 children: [
                   ListTile(
                     title: ElevatedButton(
