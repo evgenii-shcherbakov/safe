@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe/di/app.module.dart';
 import 'package:safe/view_models/auth_dialog.view_model.dart';
+import 'package:safe/widgets/dialogs/base/base.dialog.dart';
 
 import '../components/text_input.component.dart';
 
@@ -14,10 +15,7 @@ class AuthDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<AuthDialogViewModel>();
 
-    return AlertDialog(
-      scrollable: true,
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actionsPadding: const EdgeInsets.all(10),
+    return BaseDialog(
       title: Center(
         child: Text(_isRegister ? 'Регистрация' : 'Вход в аккаунт'),
       ),
