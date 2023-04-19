@@ -9,9 +9,9 @@ on:
 
 env:
   APP_NAME: 'safe'
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
+  FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+  FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
 
 jobs:
   Web:
@@ -22,21 +22,14 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Setup AWS
-        uses: 'aws-actions/configure-aws-credentials@v1'
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name: Get build arguments from AWS
-        uses: 'marvinpinto/action-inject-ssm-secrets@latest'
-        with:
-          ssm_parameter: '/safe/build-args/web'
-          env_variable_name: 'BUILD_ARGUMENTS'
       - name: Build web version
         run: |
           chmod +x ./scripts/build_web.sh
           ./scripts/build_web.sh ${{ github.event.repository.name }}
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_WEB_APP_ID }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
       - name: Deploy web version
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -70,21 +63,13 @@ jobs:
       - name: Check tag
         if: ${{ env.GIT_TAG_NAME == '' }}
         run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
-      - name: Setup AWS
-        uses: 'aws-actions/configure-aws-credentials@v1'
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name: Get build arguments from AWS
-        uses: 'marvinpinto/action-inject-ssm-secrets@latest'
-        with:
-          ssm_parameter: '/safe/build-args/android'
-          env_variable_name: 'BUILD_ARGUMENTS'
       - name: Build android version
         run: |
           chmod +x ./scripts/build_android.sh
           ./scripts/build_android.sh $APP_NAME-$GIT_TAG_NAME
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_ANDROID_API_KEY }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

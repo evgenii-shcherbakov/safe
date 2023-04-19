@@ -14,10 +14,19 @@ flutter test
 
 echo Build APK and AAB files...
 
-# shellcheck disable=SC2086
-flutter build apk $BUILD_ARGUMENTS
-# shellcheck disable=SC2086
-flutter build appbundle $BUILD_ARGUMENTS
+flutter build apk \
+--dart-define="FIREBASE_API_KEY=$FIREBASE_API_KEY" \
+--dart-define="FIREBASE_APP_ID=$FIREBASE_APP_ID" \
+--dart-define="FIREBASE_MESSAGING_SENDER_ID=$FIREBASE_MESSAGING_SENDER_ID" \
+--dart-define="FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID" \
+--dart-define="FIREBASE_STORAGE_BUCKET=$FIREBASE_STORAGE_BUCKET"
+
+flutter build appbundle \
+--dart-define="FIREBASE_API_KEY=$FIREBASE_API_KEY" \
+--dart-define="FIREBASE_APP_ID=$FIREBASE_APP_ID" \
+--dart-define="FIREBASE_MESSAGING_SENDER_ID=$FIREBASE_MESSAGING_SENDER_ID" \
+--dart-define="FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID" \
+--dart-define="FIREBASE_STORAGE_BUCKET=$FIREBASE_STORAGE_BUCKET"
 
 echo Move output client files to build directory...
 
