@@ -9,13 +9,13 @@ on:
 
 env:
   APP_NAME: 'safe'
-  FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-  FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
 
 jobs:
   Web:
     runs-on: ubuntu-latest
+
+    env:
+      BUILD_ARGUMENTS_LINK: ${{ secrets.BUILD_ARGUMENTS_WEB_LINK }}
 
     steps:
       - uses: actions/checkout@v3
@@ -26,10 +26,6 @@ jobs:
         run: |
           chmod +x ./scripts/build_web.sh
           ./scripts/build_web.sh ${{ github.event.repository.name }}
-        env:
-          FIREBASE_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_WEB_APP_ID }}
-          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
       - name: Deploy web version
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -39,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      BUILD_ARGUMENTS_LINK: ${{ secrets.BUILD_ARGUMENTS_ANDROID_LINK }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       RELEASE_SIGN_KEY_ALIAS: ${{ secrets.RELEASE_SIGN_KEY_ALIAS }}
       RELEASE_SIGN_KEY_PASSWORD: ${{ secrets.RELEASE_SIGN_KEY_PASSWORD }}
@@ -67,9 +64,6 @@ jobs:
         run: |
           chmod +x ./scripts/build_android.sh
           ./scripts/build_android.sh $APP_NAME-$GIT_TAG_NAME
-        env:
-          FIREBASE_API_KEY: ${{ secrets.FIREBASE_ANDROID_API_KEY }}
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

@@ -14,13 +14,7 @@ Cross-platform app for store passwords
 
 ### Repository secrets
 
-> **AWS Credentials**
->
-> - `AWS_ACCESS_KEY_ID` access key id for use AWS
-> - `AWS_SECRET_ACCESS_KEY` secret access key for use AWS
-> - `AWS_REGION` AWS region
-
-> **Android signing**
+> Android signing
 > 
 > - `KEYSTORE_GIT_REPOSITORY` name of git repository with keystore
 > - `KEYSTORE_ACCESS_TOKEN` token for get access to keystore repository
@@ -28,27 +22,12 @@ Cross-platform app for store passwords
 > - `RELEASE_SIGN_KEY_ALIAS` used alias for sign app using keystore
 > - `RELEASE_SIGN_KEY_PASSWORD` used password for sign app using keystore
 
-> **Firebase credentials**
+> Build arguments
 > 
-> All platforms:
-> - `FIREBASE_MESSAGING_SENDER_ID`
-> - `FIREBASE_PROJECT_ID`
-> - `FIREBASE_STORAGE_BUCKET`
-> 
-> Android:
-> - `FIREBASE_ANDROID_API_KEY`
-> - `FIREBASE_ANDROID_APP_ID`
-> 
-> Web:
-> - `FIREBASE_AUTH_DOMAIN`
-> - `FIREBASE_WEB_API_KEY`
-> - `FIREBASE_WEB_APP_ID`
-> 
-> IOS & MacOS:
-> - `FIREBASE_APPLE_API_KEY`
-> - `FIREBASE_APPLE_APP_ID`
-> - `FIREBASE_IOS_CLIENT_ID`
-> - `FIREBASE_IOS_BUNDLE_ID`
+> - `BUILD_ARGUMENTS_ANDROID_LINK`
+> - `BUILD_ARGUMENTS_WEB_LINK`
+> - `BUILD_ARGUMENTS_IOS_LINK`
+> - `BUILD_ARGUMENTS_MACOS_LINK`
 
 ### Environment variables
 
