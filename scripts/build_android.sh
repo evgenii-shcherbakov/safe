@@ -14,10 +14,10 @@ flutter test
 
 echo Build APK and AAB files...
 
-# shellcheck disable=SC2086
-flutter build apk $BUILD_ARGUMENTS
-# shellcheck disable=SC2086
-flutter build appbundle $BUILD_ARGUMENTS
+# shellcheck disable=SC2046
+flutter build apk $(curl "$BUILD_ARGUMENTS_LINK")
+# shellcheck disable=SC2046
+flutter build appbundle $(curl "$BUILD_ARGUMENTS_LINK")
 
 echo Move output client files to build directory...
 
