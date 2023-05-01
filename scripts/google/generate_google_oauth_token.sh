@@ -1,32 +1,19 @@
 #!/usr/bin/env bash
 
-KEY="${GOOGLE_PRIVATE_KEY_PATH:-$1}"
-PASSWORD="${GOOGLE_PRIVATE_KEY_PASSWORD:-$2}"
-ACCOUNT="${GOOGLE_SERVICE_ACCOUNT:-$3}"
+FRONTEND_FOLDER=${FRONTEND_FOLDER:-$1}
+KEY=${GOOGLE_P12_PRIVATE_KEY_PATH:-$2}
+PASSWORD=${GOOGLE_PRIVATE_KEY_PASSWORD:-$3}
+ACCOUNT=${GOOGLE_SERVICE_ACCOUNT:-$4}
 
-FRONTEND_FOLDER="$FRONTEND_FOLDER"
-
-PRIVATE_KEY_PATH=""
+PRIVATE_KEY_PATH=${GOOGLE_PEM_PRIVATE_KEY_PATH:-"$(dirname "$KEY")/private-key.pem"}
+GOOGLE_OAUTH_TOKEN_PATH=${GOOGLE_OAUTH_TOKEN_PATH:-"$(dirname "$KEY")/token.txt"}
 
 convert_p12_to_pem() {
-  PRIVATE_KEY_PATH="$(echo $1 | sed 's/\..*//').pem"
   openssl pkcs12 -in "$1" -nodes -nocerts -passin "pass:$2" > "$PRIVATE_KEY_PATH"
 }
 
 write_token_to_file() {
-  local RAW_TOKEN
-  local KEY_PATH
-
-  RAW_TOKEN=$(echo "$1" | tr -d '"')
-  KEY_PATH="$(dirname "$PRIVATE_KEY_PATH")/token.txt"
-
-  echo "$RAW_TOKEN" > "$KEY_PATH"
-  echo "GOOGLE_OAUTH_TOKEN=$RAW_TOKEN" >> "$FRONTEND_FOLDER/local.env"
-}
-
-write_token_to_github_environment() {
-  echo "GOOGLE_OAUTH_TOKEN=$1" >> "$GITHUB_ENV"
-  echo "GOOGLE_OAUTH_TOKEN=$1" | tr -d '"' >> .github/shared/.env
+  echo "$1" > "$GOOGLE_OAUTH_TOKEN_PATH"
 }
 
 generate_token() {
@@ -43,8 +30,8 @@ generate_token() {
 
   convert_p12_to_pem "$KEY" "$PASSWORD"
 
-  local ALG=RS256
-  local TYP=JWT
+  local ALG="RS256"
+  local TYP="JWT"
 
   JSON_HEADER=$( jq -n --arg alg "$ALG" --arg typ "$TYP"  '{alg: $alg, typ: $typ}' )
   JSON_HEADER_ENCODED=$(echo -n $JSON_HEADER | openssl base64 -e)
@@ -83,11 +70,11 @@ generate_token() {
 
   TOKEN=$(echo $RESPONSE | jq ".access_token" | tr -d '"')
 
-  if [[ -z "${GITHUB_ENV}" ]]
+  write_token_to_file "$TOKEN"
+
+  if [ -z "$GITHUB_ENV" ]
     then
-      write_token_to_file "$TOKEN"
-    else
-      write_token_to_github_environment "$TOKEN"
+      echo "GOOGLE_OAUTH_TOKEN=$TOKEN" >> "$FRONTEND_FOLDER/local.env"
   fi
 }
 

@@ -11,7 +11,7 @@ generate_bundle_name() {
 }
 
 generate_release_tag() {
-  [[ "$GIT_TAG_NAME" == "" ]] && echo "#$BUILD_NUMBER" || echo "$GIT_TAG_NAME"
+  [ -z "$GIT_TAG_NAME" ] && echo "#$BUILD_NUMBER" || echo "$GIT_TAG_NAME"
 }
 
 write_bundle_name_to_github_environment() {

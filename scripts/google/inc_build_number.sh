@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-GOOGLE_OAUTH_TOKEN=${GOOGLE_OAUTH_TOKEN:-$(cat "$1" || echo "$1")}
+GOOGLE_OAUTH_TOKEN=${GOOGLE_OAUTH_TOKEN:-$(cat "$GOOGLE_OAUTH_TOKEN_PATH" || cat "$1" || echo "$1")}
 GOOGLE_GET_BUCKET_HOST=${GOOGLE_GET_BUCKET_HOST:-"https://storage.googleapis.com/storage/v1/b/${GOOGLE_BUCKET_NAME:-$2}/o"}
 GOOGLE_UPLOAD_BUCKET_HOST=${GOOGLE_UPLOAD_BUCKET_HOST:-"https://storage.googleapis.com/upload/storage/v1/b/${GOOGLE_BUCKET_NAME:-$2}/o"}
 GOOGLE_BUILD_NUMBER_FILE=${GOOGLE_BUILD_NUMBER_FILE:-$3}
@@ -39,7 +39,7 @@ inc_build_number() {
 
   update_build_number "$BUILD_NUMBER"
 
-  if [[ -z "${GITHUB_ENV}" ]]
+  if [ -z "$GITHUB_ENV" ]
     then
       write_build_number_to_local_environment "$BUILD_NUMBER"
     else

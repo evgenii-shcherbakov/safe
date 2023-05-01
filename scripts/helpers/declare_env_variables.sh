@@ -46,12 +46,25 @@ declare_env_variables() {
     "GOOGLE_BUCKET_NAME=$GOOGLE_BUCKET_NAME"
     "GOOGLE_BUILD_NUMBER_FILE=$GOOGLE_BUILD_NUMBER_FILE"
     "ANDROID_RELEASE_SIGN_KEY_PATH=$KEYSTORE_FOLDER/global/android/release-sign-key.keystore"
-    "GOOGLE_PRIVATE_KEY_PATH=$KEYSTORE_FOLDER/$APP_NAME/google/private-key.p12"
+    "GOOGLE_P12_PRIVATE_KEY_PATH=$KEYSTORE_FOLDER/$APP_NAME/google/private-key.p12"
+    "GOOGLE_PEM_PRIVATE_KEY_PATH=$KEYSTORE_FOLDER/$APP_NAME/google/private-key.pem"
     "GOOGLE_GET_BUCKET_HOST=https://storage.googleapis.com/storage/v1/b/$GOOGLE_BUCKET_NAME/o"
     "GOOGLE_UPLOAD_BUCKET_HOST=https://storage.googleapis.com/upload/storage/v1/b/$GOOGLE_BUCKET_NAME/o"
+    "GOOGLE_OAUTH_TOKEN_PATH=$KEYSTORE_FOLDER/$APP_NAME/google/token.txt"
   )
 
-  if [[ -z "${GITHUB_ENV}" ]]
+  local PLATFORMS=("web" "android" "ios" "macos" "linux" "windows")
+
+  for PLATFORM in "${PLATFORMS[@]}"
+    do
+      UPPERCASE_PLATFORM="$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')"
+
+      PARAMS_ARRAY+=(
+        "${UPPERCASE_PLATFORM}_BUILD_ARGUMENTS_PATH=$KEYSTORE_FOLDER/$APP_NAME/$PLATFORM/build-arguments.txt"
+      )
+    done
+
+  if [ -z "$GITHUB_ENV" ]
     then
       write_variables_to_local_environment "${PARAMS_ARRAY[@]}"
     else

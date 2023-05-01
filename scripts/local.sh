@@ -17,7 +17,7 @@ update_environment() {
 
 add_scripts_permissions() {
   chmod +x scripts/helpers/clean_dist_directory.sh
-  chmod +x scripts/helpers/declare_env_params.sh
+  chmod +x scripts/helpers/declare_env_variables.sh
   chmod +x scripts/google/generate_google_oauth_token.sh
   chmod +x scripts/google/get_build_arguments.sh
   chmod +x scripts/google/inc_build_number.sh
@@ -45,7 +45,7 @@ prepare_environment() {
     BUILD_NUMBER="0"
 
   scripts/helpers/clean_dist_directory.sh
-  scripts/helpers/declare_env_params.sh
+  scripts/helpers/declare_env_variables.sh
 
   update_environment
 
@@ -60,7 +60,6 @@ build() {
 
   for PLATFORM in "${PLATFORMS[@]}"
     do
-      export BUILD_ARGUMENTS="$(<"$KEYSTORE_FOLDER/$APP_NAME/$PLATFORM/build-arguments.txt")"
       scripts/google/get_build_arguments.sh "$PLATFORM" && "scripts/$PLATFORM/build.sh"
     done
 }

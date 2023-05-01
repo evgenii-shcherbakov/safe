@@ -2,12 +2,12 @@
 
 FRONTEND_FOLDER=${FRONTEND_FOLDER:-$1}
 DIST_FOLDER=${DIST_FOLDER:-$2}
-BUILD_ARGUMENTS=${BUILD_ARGUMENTS:-$3}
+BUILD_ARGUMENTS=${BUILD_ARGUMENTS:-$(cat "$WEB_BUILD_ARGUMENTS_PATH" || cat "$3" || echo "$3"))}
 
 build() {
   echo Build web version...
 
-  if [[ -z "${GITHUB_ENV}" ]]
+  if [ -z "$GITHUB_ENV" ]
     then
       cd "$FRONTEND_FOLDER" && flutter build web $BUILD_ARGUMENTS
     else

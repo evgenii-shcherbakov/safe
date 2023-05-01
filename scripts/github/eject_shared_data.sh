@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-FRONTEND_FOLDER=${FRONTEND_FOLDER:-$1}
-DIST_FOLDER=${DIST_FOLDER:-$2}
-KEYSTORE_FOLDER=${KEYSTORE_FOLDER:-$3}
-PRIVATE_DATA_PASSWORD=${PRIVATE_DATA_PASSWORD:-$4}
+APP_NAME=${APP_NAME:-$1}
+FRONTEND_FOLDER=${FRONTEND_FOLDER:-$2}
+DIST_FOLDER=${DIST_FOLDER:-$3}
+KEYSTORE_FOLDER=${KEYSTORE_FOLDER:-$4}
+PRIVATE_DATA_PASSWORD=${PRIVATE_DATA_PASSWORD:-$5}
 
 eject_shared_data() {
   zip \
@@ -11,7 +12,8 @@ eject_shared_data() {
     -e \
     "$DIST_FOLDER/shared-data.zip" \
     .github/shared/.env \
-    "$KEYSTORE_FOLDER" \
+    "$KEYSTORE_FOLDER/global" \
+    "$KEYSTORE_FOLDER/$APP_NAME" \
     "$FRONTEND_FOLDER/lib/di" \
     "$FRONTEND_FOLDER/.dart_tool" \
     -P "$PRIVATE_DATA_PASSWORD"
