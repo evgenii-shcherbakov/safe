@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-APP_NAME="safe"
-KEYSTORE_FOLDER="keystore"
-DIST_FOLDER="dist"
-FRONTEND_FOLDER="."
 GOOGLE_PRIVATE_KEY_PASSWORD="$1"
 GOOGLE_SERVICE_ACCOUNT="$2"
 GOOGLE_BUCKET_NAME="$3"
@@ -11,8 +7,18 @@ GOOGLE_BUILD_NUMBER_FILE="$4"
 
 PLATFORMS=("web" "android")
 
+load_configuration() {
+  local CONFIG
+
+  CONFIG=$(<fbs.json)
+
+  export \
+    DIST_FOLDER="$(echo "$CONFIG" | jq '.path.dist' | tr -d '"' || echo "dist" | tr -d '"')" \
+    LOCAL_ENVIRONMENT_PATH="$(echo "$CONFIG" | jq '.local.environment' | tr -d '"' || echo "local.env" | tr -d '"')"
+}
+
 update_environment() {
-  export $(<"$FRONTEND_FOLDER/local.env")
+  export $(<"$LOCAL_ENVIRONMENT_PATH")
 }
 
 add_scripts_permissions() {
@@ -33,21 +39,21 @@ add_scripts_permissions() {
 
 prepare_environment() {
   export \
-    APP_NAME="$APP_NAME" \
-    DIST_FOLDER="$DIST_FOLDER" \
-    KEYSTORE_FOLDER="$KEYSTORE_FOLDER" \
-    FRONTEND_FOLDER="$FRONTEND_FOLDER" \
     GOOGLE_PRIVATE_KEY_PASSWORD="$GOOGLE_PRIVATE_KEY_PASSWORD" \
     GOOGLE_SERVICE_ACCOUNT="$GOOGLE_SERVICE_ACCOUNT" \
     GOOGLE_BUCKET_NAME="$GOOGLE_BUCKET_NAME" \
-    GOOGLE_BUILD_NUMBER_FILE="$GOOGLE_BUILD_NUMBER_FILE" \
-    BUNDLE_NAME="$APP_NAME-local" \
-    BUILD_NUMBER="0"
+    GOOGLE_BUILD_NUMBER_FILE="$GOOGLE_BUILD_NUMBER_FILE"
+
+  load_configuration
 
   scripts/helpers/clean_dist_directory.sh
   scripts/helpers/declare_env_variables.sh
 
   update_environment
+
+  export \
+    BUNDLE_NAME="$APP_NAME-$LOCAL_BUNDLE_PREFIX" \
+    BUILD_NUMBER="$LOCAL_BUILD_NUMBER"
 
   scripts/google/generate_google_oauth_token.sh
 

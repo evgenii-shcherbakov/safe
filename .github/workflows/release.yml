@@ -8,13 +8,8 @@ on:
       - '*'
 
 env:
-  APP_NAME: 'safe'
-  FRONTEND_FOLDER: '.'
-  DIST_FOLDER: 'dist'
-
   BASE_HREF: '${{ github.event.repository.name }}'
 
-  KEYSTORE_FOLDER: 'keystore'
   KEYSTORE_GIT_REPOSITORY: '${{ secrets.KEYSTORE_GIT_REPOSITORY }}'
   KEYSTORE_ACCESS_TOKEN: '${{ secrets.KEYSTORE_ACCESS_TOKEN }}'
 
@@ -38,16 +33,16 @@ jobs:
       - uses: 'subosito/flutter-action@v2'
         with:
           channel: 'stable'
+      - name: 'Declare environment variables'
+        run: |
+          chmod +x scripts/helpers/declare_env_variables.sh
+          scripts/helpers/declare_env_variables.sh
       - name: 'Checkout keystore repo'
         uses: 'actions/checkout@v3'
         with:
           repository: '${{ env.KEYSTORE_GIT_REPOSITORY }}'
           token: '${{ env.KEYSTORE_ACCESS_TOKEN }}'
           path: '${{ env.KEYSTORE_FOLDER }}'
-      - name: 'Declare environment variables'
-        run: |
-          chmod +x scripts/helpers/declare_env_variables.sh
-          scripts/helpers/declare_env_variables.sh
       - name: 'Get google OAuth token'
         run: |
           chmod +x scripts/google/generate_google_oauth_token.sh
@@ -95,6 +90,10 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'Shared data'
+      - name: 'Declare environment variables'
+        run: |
+          chmod +x scripts/helpers/declare_env_variables.sh
+          scripts/helpers/declare_env_variables.sh
       - name: 'Inject shared data'
         run: |
           chmod +x scripts/github/inject_shared_data.sh
@@ -130,6 +129,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 18
+      - name: 'Declare environment variables'
+        run: |
+          chmod +x scripts/helpers/declare_env_variables.sh
+          scripts/helpers/declare_env_variables.sh
       - name: 'Load shared data'
         uses: 'actions/download-artifact@v3'
         with:
@@ -173,6 +176,10 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'Shared data'
+      - name: 'Declare environment variables'
+        run: |
+          chmod +x scripts/helpers/declare_env_variables.sh
+          scripts/helpers/declare_env_variables.sh
       - name: 'Inject shared data'
         run: |
           chmod +x scripts/github/inject_shared_data.sh

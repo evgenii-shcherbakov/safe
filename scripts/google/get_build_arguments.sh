@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PLATFORM=${TARGET_PLATFORM:-$1}
+PLATFORM=${PLATFORM:-$1}
 APP_NAME=${APP_NAME:-$2}
 KEYSTORE_FOLDER=${KEYSTORE_FOLDER:-$3}
 LINK=${GOOGLE_GET_BUCKET_HOST:-"https://storage.googleapis.com/storage/v1/b/${GOOGLE_BUCKET_NAME:-$4}/o"}
