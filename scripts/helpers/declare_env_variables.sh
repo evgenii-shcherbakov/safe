@@ -10,27 +10,29 @@ GOOGLE_BUCKET_NAME=${GOOGLE_BUCKET_NAME:-$7}
 GOOGLE_BUILD_NUMBER_FILE=${GOOGLE_BUILD_NUMBER_FILE:-$8}
 
 BASE_HREF="$BASE_HREF"
+SHARED_ENVIRONMENT_PATH="$KEYSTORE_FOLDER/$APP_NAME/.env"
+LOCAL_ENVIRONMENT_PATH="$FRONTEND_FOLDER/local.env"
 
 write_variables_to_github_environment() {
   local PARAMS=("$@")
 
-  [ -e ".github/shared/.env" ] || mkdir -p .github/shared
+  rm -rf "$SHARED_ENVIRONMENT_PATH"
 
   for PARAM in "${PARAMS[@]}"
     do
       echo "$PARAM" >> "$GITHUB_ENV"
-      echo "$PARAM" | tr -d '"' >> .github/shared/.env
+      echo "$PARAM" | tr -d '"' >> "$SHARED_ENVIRONMENT_PATH"
     done
 }
 
 write_variables_to_local_environment() {
   local PARAMS=("$@")
 
-  rm -rf "$FRONTEND_FOLDER/local.env"
+  rm -rf "$LOCAL_ENVIRONMENT_PATH"
 
   for PARAM in "${PARAMS[@]}"
     do
-      echo "$PARAM" | tr -d '"' >> "$FRONTEND_FOLDER/local.env"
+      echo "$PARAM" | tr -d '"' >> "$LOCAL_ENVIRONMENT_PATH"
     done
 }
 
@@ -51,6 +53,8 @@ declare_env_variables() {
     "GOOGLE_GET_BUCKET_HOST=https://storage.googleapis.com/storage/v1/b/$GOOGLE_BUCKET_NAME/o"
     "GOOGLE_UPLOAD_BUCKET_HOST=https://storage.googleapis.com/upload/storage/v1/b/$GOOGLE_BUCKET_NAME/o"
     "GOOGLE_OAUTH_TOKEN_PATH=$KEYSTORE_FOLDER/$APP_NAME/google/token.txt"
+    "SHARED_ENVIRONMENT_PATH=$SHARED_ENVIRONMENT_PATH"
+    "LOCAL_ENVIRONMENT_PATH=$LOCAL_ENVIRONMENT_PATH"
   )
 
   local PLATFORMS=("web" "android" "ios" "macos" "linux" "windows")

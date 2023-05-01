@@ -4,6 +4,7 @@ GOOGLE_OAUTH_TOKEN=${GOOGLE_OAUTH_TOKEN:-$(cat "$GOOGLE_OAUTH_TOKEN_PATH" || cat
 GOOGLE_GET_BUCKET_HOST=${GOOGLE_GET_BUCKET_HOST:-"https://storage.googleapis.com/storage/v1/b/${GOOGLE_BUCKET_NAME:-$2}/o"}
 GOOGLE_UPLOAD_BUCKET_HOST=${GOOGLE_UPLOAD_BUCKET_HOST:-"https://storage.googleapis.com/upload/storage/v1/b/${GOOGLE_BUCKET_NAME:-$2}/o"}
 GOOGLE_BUILD_NUMBER_FILE=${GOOGLE_BUILD_NUMBER_FILE:-$3}
+LOCAL_ENVIRONMENT_PATH=${LOCAL_ENVIRONMENT_PATH:-"${FRONTEND_FOLDER:-$4}/local.env"}
 
 get_build_number() {
   curl \
@@ -23,12 +24,12 @@ update_build_number() {
 }
 
 write_build_number_to_local_environment() {
-  echo "BUILD_NUMBER=$1" | tr -d '"' >> "$FRONTEND_FOLDER/local.env"
+  echo "BUILD_NUMBER=$1" | tr -d '"' >> "$LOCAL_ENVIRONMENT_PATH"
 }
 
 write_build_number_to_github_environment() {
   echo "BUILD_NUMBER=$1" >> "$GITHUB_ENV"
-  echo "BUILD_NUMBER=$1" | tr -d '"' >> .github/shared/.env
+  echo "BUILD_NUMBER=$1" | tr -d '"' >> "$SHARED_ENVIRONMENT_PATH"
 }
 
 inc_build_number() {

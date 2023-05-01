@@ -3,8 +3,7 @@
 APP_NAME=${APP_NAME:-$1}
 GIT_TAG_NAME=${GIT_TAG_NAME:-$2}
 BUILD_NUMBER=${BUILD_NUMBER:-$3}
-
-FRONTEND_FOLDER="$FRONTEND_FOLDER"
+SHARED_ENVIRONMENT_PATH=${SHARED_ENVIRONMENT_PATH:-$4}
 
 generate_bundle_name() {
   echo "$APP_NAME-${GIT_TAG_NAME:-${BUILD_NUMBER:-"unknown"}}"
@@ -20,7 +19,7 @@ write_bundle_name_to_github_environment() {
   BUNDLE_NAME=$(generate_bundle_name)
 
   echo "BUNDLE_NAME=$BUNDLE_NAME" >> "$GITHUB_ENV"
-  echo "BUNDLE_NAME=$BUNDLE_NAME" | tr -d '"' >> .github/shared/.env
+  echo "BUNDLE_NAME=$BUNDLE_NAME" | tr -d '"' >> "$SHARED_ENVIRONMENT_PATH"
 }
 
 write_release_tag_to_github_environment() {
@@ -29,7 +28,7 @@ write_release_tag_to_github_environment() {
   RELEASE_TAG=$(generate_release_tag)
 
   echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
-  echo "RELEASE_TAG=$RELEASE_TAG" | tr -d '"' >> .github/shared/.env
+  echo "RELEASE_TAG=$RELEASE_TAG" | tr -d '"' >> "$SHARED_ENVIRONMENT_PATH"
 }
 
 write_bundle_name_to_github_environment

@@ -11,10 +11,9 @@ eject_shared_data() {
     -r \
     -e \
     "$DIST_FOLDER/shared-data.zip" \
-    .github/shared/.env \
     "$KEYSTORE_FOLDER/global" \
     "$KEYSTORE_FOLDER/$APP_NAME" \
-    "$FRONTEND_FOLDER/lib/di" \
+    "$FRONTEND_FOLDER/lib" \
     "$FRONTEND_FOLDER/.dart_tool" \
     -P "$PRIVATE_DATA_PASSWORD"
 }
