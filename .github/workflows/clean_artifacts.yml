@@ -1,4 +1,4 @@
-name: Clean artifacts
+name: 'Clean artifacts'
 
 on:
   schedule:
@@ -6,11 +6,11 @@ on:
 
 jobs:
   clean-artifacts:
-    name: Clean artifacts
-    runs-on: ubuntu-latest
+    name: 'Clean artifacts'
+    runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: kolpav/purge-artifacts-action@v1
+      - uses: 'kolpav/purge-artifacts-action@v1'
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          expire-in: 1days
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          expire-in: '1days'
