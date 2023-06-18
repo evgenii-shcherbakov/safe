@@ -1,25 +1,38 @@
 #!/usr/bin/env bash
 
-FRONTEND_FOLDER=${FRONTEND_FOLDER:-$1}
-DIST_FOLDER=${DIST_FOLDER:-$2}
-BUILD_ARGUMENTS=${BUILD_ARGUMENTS:-$(cat "$WEB_BUILD_ARGUMENTS_PATH" || cat "$3" || echo "$3"))}
+KEYSTORE_HOST=${KEYSTORE_HOST:-$1}
+KEYSTORE_ACCESS_TOKEN=${KEYSTORE_ACCESS_TOKEN:-$2}
+BASE_HREF=${BASE_HREF:-$3}
+FRONTEND_FOLDER=${FRONTEND_FOLDER:-$4}
+DIST_FOLDER=${DIST_FOLDER:-$5}
+
+chmod +x scripts/flutter/prebuild.sh
 
 build() {
-  echo Build web version...
+  local BUILD_ARGUMENTS
 
-  if [ -z "$GITHUB_ENV" ]
-    then
-      cd "$FRONTEND_FOLDER" && flutter build web $BUILD_ARGUMENTS
-    else
-      cd "$FRONTEND_FOLDER" && flutter build web --release --base-href "/$BASE_HREF/" $BUILD_ARGUMENTS
-    fi
+  echo "Load build arguments..."
+  BUILD_ARGUMENTS=$(
+    curl \
+      -X "POST" \
+      -H "Authorization: Bearer $KEYSTORE_ACCESS_TOKEN" \
+      -d "{\"platform\":\"web\",\"parser\":\"dart\"}" \
+      --url "$KEYSTORE_HOST/applications/safe/build-arguments"
+  )
+
+  echo "Build web version..."
+  cd "$FRONTEND_FOLDER" && flutter build web --release --base-href "/$BASE_HREF/" $BUILD_ARGUMENTS || exit 1
 }
 
-move_files() {
-  echo Move output web files to build directory...
-
-  cp -rp "$FRONTEND_FOLDER/build/web" "$DIST_FOLDER"
+pack() {
+  echo "Move output files to dist directory..."
+  cp -rp "$FRONTEND_FOLDER/build/web" "$DIST_FOLDER/web" || exit 1
 }
 
-build
-move_files
+main() {
+  scripts/flutter/prebuild.sh "$FRONTEND_FOLDER" "$DIST_FOLDER"
+  build
+  pack
+}
+
+main

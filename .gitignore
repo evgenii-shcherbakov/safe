@@ -51,4 +51,3 @@ keystore/
 dist/
 *.env
 firebase_options.dart
-.github/shared/

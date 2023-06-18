@@ -2,12 +2,6 @@
   "appName": "safe",
   "path": {
     "frontend": ".",
-    "keystore": "keystore",
     "dist": "dist"
-  },
-  "local": {
-    "bundlePrefix": "local",
-    "buildNumber": 0,
-    "environment": "local.env"
   }
 }

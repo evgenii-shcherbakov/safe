@@ -10,15 +10,13 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: 'actions/checkout@v3'
-      - uses: 'subosito/flutter-action@v2'
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Setup Flutter'
+        uses: 'subosito/flutter-action@v2'
         with:
           channel: 'stable'
       - name: 'Declare environment variables'
-        run: |
-          chmod +x scripts/helpers/declare_env_variables.sh
-          scripts/helpers/declare_env_variables.sh
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
       - name: 'Prebuild'
-        run: |
-          chmod +x scripts/flutter/prebuild.sh
-          scripts/flutter/prebuild.sh
+        run: 'chmod +x scripts/flutter/prebuild.sh && scripts/flutter/prebuild.sh'
