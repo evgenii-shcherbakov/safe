@@ -49,5 +49,5 @@ app.*.map.json
 build/
 keystore/
 dist/
-.env
+*.env
 firebase_options.dart

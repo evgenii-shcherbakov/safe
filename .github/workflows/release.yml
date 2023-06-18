@@ -1,94 +1,136 @@
-name: Release
+name: 'Release'
 
 on:
   push:
     branches:
-      - main
-    tags:
-      - '*'
+      - 'main'
+      - 'feature/versioning'
 
 env:
-  APP_NAME: 'safe'
+  BASE_HREF: '${{ github.event.repository.name }}'
+
+  KEYSTORE_HOST: '${{ secrets.KEYSTORE_HOST }}'
+  KEYSTORE_ACCESS_TOKEN: '${{ secrets.KEYSTORE_ACCESS_TOKEN }}'
+
+  GOOGLE_BUCKET_NAME: '${{ secrets.GOOGLE_BUCKET_NAME }}'
+  GOOGLE_PRIVATE_KEY_PASSWORD: '${{ secrets.GOOGLE_PRIVATE_KEY_PASSWORD }}'
+  GOOGLE_SERVICE_ACCOUNT: '${{ secrets.GOOGLE_SERVICE_ACCOUNT }}'
+  GOOGLE_BUILD_NUMBER_FILE: '${{ secrets.GOOGLE_BUILD_NUMBER_FILE }}'
+
+  DEPLOY_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
 jobs:
-  Web:
-    runs-on: ubuntu-latest
+  Prebuild:
+    runs-on: 'ubuntu-latest'
 
-    env:
-      BUILD_ARGUMENTS_LINK: ${{ secrets.BUILD_ARGUMENTS_WEB_LINK }}
+    permissions:
+      contents: 'write'
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+        with:
+          fetch-depth: 2
+      - name: 'Setup Flutter'
+        uses: 'subosito/flutter-action@v2'
         with:
           channel: 'stable'
-      - name: Build web version
-        run: |
-          chmod +x ./scripts/build_web.sh
-          ./scripts/build_web.sh ${{ github.event.repository.name }}
-      - name: Deploy web version
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
+      - name: 'Build'
+        run: 'chmod +x scripts/flutter/build.sh && scripts/flutter/build.sh'
+      - name: 'Upload version data'
+        uses: 'actions/upload-artifact@v3'
         with:
-          folder: dist
+          name: 'Version'
+          path: '${{ env.DIST_FOLDER }}'
+          retention-days: 1
+
+  Web:
+    runs-on: 'ubuntu-latest'
+
+    needs:
+      - 'Prebuild'
+
+    permissions:
+      contents: 'write'
+      id-token: 'write'
+
+    steps:
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Setup Flutter'
+        uses: 'subosito/flutter-action@v2'
+        with:
+          channel: 'stable'
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
+      - name: 'Prebuild'
+        run: 'chmod +x scripts/flutter/prebuild.sh && scripts/flutter/prebuild.sh'
+      - name: 'Build'
+        run: 'chmod +x scripts/web/build.sh && scripts/web/build.sh'
+      - name: 'Deploy web version'
+        uses: 'peaceiris/actions-gh-pages@v3'
+        with:
+          github_token: '${{ env.DEPLOY_TOKEN }}'
+          publish_dir: '${{ env.DIST_FOLDER }}/web'
 
   Android:
-    runs-on: ubuntu-latest
-
-    env:
-      BUILD_ARGUMENTS_LINK: ${{ secrets.BUILD_ARGUMENTS_ANDROID_LINK }}
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      RELEASE_SIGN_KEY_ALIAS: ${{ secrets.RELEASE_SIGN_KEY_ALIAS }}
-      RELEASE_SIGN_KEY_PASSWORD: ${{ secrets.RELEASE_SIGN_KEY_PASSWORD }}
+    runs-on: 'ubuntu-latest'
+    needs:
+      - 'Prebuild'
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Setup Flutter'
+        uses: 'subosito/flutter-action@v2'
         with:
           channel: 'stable'
-      - uses: actions/setup-java@v2
+      - name: 'Setup Java'
+        uses: 'actions/setup-java@v2'
         with:
           distribution: 'zulu'
           java-version: 18
-      - name: Checkout keystore repo
-        uses: actions/checkout@v3
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
+      - name: 'Prebuild'
+        run: 'chmod +x scripts/flutter/prebuild.sh && scripts/flutter/prebuild.sh'
+      - name: 'Build'
+        run: 'chmod +x scripts/android/build.sh && scripts/android/build.sh'
+      - name: 'Upload android bundle'
+        uses: 'actions/upload-artifact@v3'
         with:
-          repository: ${{ secrets.KEYSTORE_GIT_REPOSITORY }}
-          token: ${{ secrets.KEYSTORE_ACCESS_TOKEN }}
-          path: frontend/android/app/keystore
-      - name: Get git tag
-        uses: olegtarasov/get-tag@v2.1
-      - name: Check tag
-        if: ${{ env.GIT_TAG_NAME == '' }}
-        run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
-      - name: Build android version
-        run: |
-          chmod +x ./scripts/build_android.sh
-          ./scripts/build_android.sh $APP_NAME-$GIT_TAG_NAME
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Android
-          path: dist/*
+          name: 'Android'
+          path: '${{ env.DIST_FOLDER }}/android'
           retention-days: 1
 
   Release:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
     needs:
-      - Web
-      - Android
+      - 'Web'
+      - 'Android'
 
     steps:
-      - name: Get git tag
-        uses: olegtarasov/get-tag@v2.1
-      - name: Check tag
-        if: ${{ env.GIT_TAG_NAME == '' }}
-        run: echo "GIT_TAG_NAME=latest" >> $GITHUB_ENV
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-      - name: Create release
-        uses: marvinpinto/action-automatic-releases@latest
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
+      - name: 'Load version data'
+        uses: 'actions/download-artifact@v3'
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{ env.GIT_TAG_NAME }}
+          name: 'Version'
+      - name: 'Get release tag'
+        run: 'echo "RELEASE_TAG=$(<version.txt)" >> $GITHUB_ENV'
+      - name: 'Load Android bundle'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'Android'
+          path: '${{ env.DIST_FOLDER }}'
+      - name: 'Create release'
+        uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: '${{ env.DEPLOY_TOKEN }}'
+          automatic_release_tag: '${{ env.RELEASE_TAG }}'
           prerelease: false
-          files: '**/*'
+          files: '${{ env.DIST_FOLDER }}/**/*'

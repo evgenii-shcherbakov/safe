@@ -1,22 +1,23 @@
-name: Pull request
+name: 'Pull request'
 
 on:
   pull_request:
     branches:
-      - main
+      - 'main'
 
 jobs:
-  PR:
-    runs-on: ubuntu-latest
+  pull-request:
+    name: 'Pull request'
+    runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Setup Flutter'
+        uses: 'subosito/flutter-action@v2'
         with:
           channel: 'stable'
-      - name: Install dependencies
-        run: flutter pub get
-      - name: Build DI tree
-        run: flutter packages pub run build_runner build --delete-conflicting-outputs
-      - name: Test
-        run: flutter test
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
+      - name: 'Prebuild'
+        run: 'chmod +x scripts/flutter/prebuild.sh && scripts/flutter/prebuild.sh'

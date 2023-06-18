@@ -1,0 +1,7 @@
+{
+  "appName": "safe",
+  "path": {
+    "frontend": ".",
+    "dist": "dist"
+  }
+}

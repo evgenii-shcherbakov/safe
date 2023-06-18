@@ -1,6 +1,6 @@
 def keystoreProperties = new Properties()
-def keystoreFile = file('keystore/keystore.properties')
-def hasKeystore = keystoreFile.exists() || System.getenv('KEYSTORE_PASSWORD')
+def keystoreFile = file('keystore/release.properties')
+def hasKeystore = keystoreFile.exists() || System.getenv('ANDROID_RELEASE_SIGN_KEY_KEYSTORE_PASSWORD')
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -61,7 +61,7 @@ android {
         signingConfigs {
             release {
                 if (keystoreFile.exists()) {
-                    file('keystore/keystore.properties').withInputStream {
+                    file("keystore/release.properties").withInputStream {
                         keystoreProperties.load(it)
                     }
 
@@ -70,10 +70,10 @@ android {
                     keyAlias "$keystoreProperties.keyAlias"
                     keyPassword "$keystoreProperties.keyPassword"
                 } else {
-                    storeFile file('keystore/android_keystore.keystore')
-                    storePassword System.getenv('KEYSTORE_PASSWORD')
-                    keyAlias System.getenv('RELEASE_SIGN_KEY_ALIAS')
-                    keyPassword System.getenv('RELEASE_SIGN_KEY_PASSWORD')
+                    storeFile file('keystore/release.keystore')
+                    storePassword System.getenv('ANDROID_RELEASE_SIGN_KEY_KEYSTORE_PASSWORD')
+                    keyAlias System.getenv('ANDROID_RELEASE_SIGN_KEY_ALIAS')
+                    keyPassword System.getenv('ANDROID_RELEASE_SIGN_KEY_PASSWORD')
                 }
             }
         }
