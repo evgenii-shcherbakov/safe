@@ -48,12 +48,12 @@ patch_version() {
   echo "Update application version..."
   flutter pub global activate pub_version_plus || exit 1
   cd "$FRONTEND_FOLDER" && pubversion patch || exit 1
-  IFS='.' read -ra PARTS <<< $(awk '/version:/ {print $2}' "$FILE")
+  IFS='[+.]' read -ra PARTS <<< "$(awk '/version:/ {print $2}' "$FILE")"
   PATCH=${PARTS[2]}
   PATCH=$((PATCH+1))
   NEW_VALUE="${PARTS[0]}.${PARTS[1]}.${PATCH}+${BUILD_NUMBER}"
   echo "${PARTS[0]}.${PARTS[1]}.${PATCH}" > "$DIST_FOLDER/version.txt"
-  printf "%s\n" "H" "/version: /s/.*=\\([^=]*\\).*/\\1/p.*" "s//version: $NEW_VALUE/" "wq" | ed -s "$FILE" || exit 1
+  printf "%s\n" "H" "/version: .*" "s//version: $NEW_VALUE/" "wq" | ed -s "$FILE" || exit 1
 
   update_branch
   git stash pop
@@ -69,7 +69,7 @@ versioning() {
   if git diff HEAD~ HEAD --unified=0 -- "$FILE" | grep -q "+.*$SEARCH_PATTERN.*"
     then
       echo "Parameter 'version' in $FILE already updated, skip auto-patching..."
-      IFS='+' read -ra PARTS <<< $(awk '/version:/ {print $2}' "$FILE")
+      IFS='+' read -ra PARTS <<< "$(awk '/version:/ {print $2}' "$FILE")"
       echo "${PARTS[0]}" > "$DIST_FOLDER/version.txt"
     else
       patch_version "$FILE"
