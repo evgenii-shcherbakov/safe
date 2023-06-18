@@ -91,7 +91,7 @@ jobs:
         uses: 'actions/setup-java@v2'
         with:
           distribution: 'zulu'
-          java-version: 19
+          java-version: 18
       - name: 'Declare environment variables'
         run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
       - name: 'Prebuild'
