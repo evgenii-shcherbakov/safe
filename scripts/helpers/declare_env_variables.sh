@@ -33,7 +33,7 @@ declare_env_variables() {
 main() {
   parse_config_file
 
-  if [ -z "$GITHUB_ENV"]
+  if [ "$GITHUB_ENV" != "" ]
     then
       declare_env_variables
   fi
