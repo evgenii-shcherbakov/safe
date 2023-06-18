@@ -73,7 +73,7 @@ jobs:
         uses: 'peaceiris/actions-gh-pages@v3'
         with:
           github_token: '${{ env.DEPLOY_TOKEN }}'
-          folder: '${{ env.DIST_FOLDER }}/web'
+          publish_dir: '${{ env.DIST_FOLDER }}/web'
 
   Android:
     runs-on: 'ubuntu-latest'
@@ -112,6 +112,10 @@ jobs:
       - 'Android'
 
     steps:
+      - name: 'Load code'
+        uses: 'actions/checkout@v3'
+      - name: 'Declare environment variables'
+        run: 'chmod +x scripts/helpers/declare_env_variables.sh && scripts/helpers/declare_env_variables.sh'
       - name: 'Load version data'
         uses: 'actions/download-artifact@v3'
         with:

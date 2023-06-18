@@ -6,7 +6,8 @@ on:
       - 'main'
 
 jobs:
-  PR:
+  pull-request:
+    name: 'Pull request'
     runs-on: 'ubuntu-latest'
 
     steps:
